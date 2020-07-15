@@ -61,6 +61,10 @@ app.get("/balance", function (req, res) {
   res.render("balance");
 });
 
+app.get("/qrcode", function (req, res) {
+  res.render("qrcode");
+});
+
 // ====== post =======
 
 app.post("/signup", function (req, res) {
