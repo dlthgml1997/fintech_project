@@ -5,6 +5,7 @@ const request = require("request");
 const jwt = require("jsonwebtoken");
 const auth = require("./lib/auth");
 var mysql = require("mysql");
+const { get } = require("request");
 var connection = mysql.createConnection({
   host: "localhost",
   user: "root",
@@ -39,6 +40,29 @@ app.get("/signup", function (req, res) {
   res.render("signup");
 });
 
+app.get("/login", function (req, res) {
+  res.render("login");
+});
+
+app.get("/authTest", auth, function (req, res) {
+  res.json("로그인이 완료된 사용자가 보는 화면");
+});
+
+app.get("/main", function (req, res) {
+  res.render("main");
+});
+
+app.get("/addRouter", function (req, res) {
+  console.log("router working");
+  res.send("<html><h1>안녕하세요 html 코드입니다. </h1></html>");
+});
+
+app.get("/balance", function (req, res) {
+  res.render("balance");
+});
+
+// ====== post =======
+
 app.post("/signup", function (req, res) {
   console.log(req.body);
   var userName = req.body.userName;
@@ -67,10 +91,6 @@ app.post("/signup", function (req, res) {
       }
     }
   );
-});
-
-app.get("/login", function (req, res) {
-  res.render("login");
 });
 
 app.post("/login", function (req, res) {
@@ -112,11 +132,6 @@ app.post("/login", function (req, res) {
   });
 });
 
-
-app.get("/authTest", auth, function (req, res) {
-  res.json("로그인이 완료된 사용자가 보는 화면");
-});
-
 app.get("/authResult", function (req, res) {
   var authCode = req.query.code;
   console.log("사용자 인증코드 : ", authCode);
@@ -146,10 +161,6 @@ app.get("/authResult", function (req, res) {
       res.render("resultChild", { data: accessRequestResult });
     }
   });
-});
-
-app.get("/main", function (req, res) {
-  res.render("main");
 });
 
 app.post("/list", auth, function (req, res) {
@@ -197,22 +208,11 @@ app.post("/ajaxTest", function (req, res) {
   res.json("로그인에 성공하셨습니다.");
 });
 
-app.get("/addRouter", function (req, res) {
-  console.log("router working");
-  res.send("<html><h1>안녕하세요 html 코드입니다. </h1></html>");
-});
-
-app.get("/balance", function (req, res) {
-  res.render("balance");
-});
-
 app.post("/balance", auth, function (req, res) {
   var userId = req.decoded.userId; 
   var fin_use_num = req.body.fin_use_num;
   var countnum = Math.floor(Math.random() * 1000000000) + 1;
-  var transId = "T991641600U" + countnum; //이용기과번호 본인것 입력
-
-  console.log("받아온 데이터", userId, fin_use_num);
+  var transId = "T991641600U" + countnum; //이용기과번호 
 
   var sql = "SELECT * FROM user WHERE id = ?"; 
   connection.query(sql, [userId], function(err, results){
