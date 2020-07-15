@@ -157,8 +157,6 @@ app.get("/main", function (req, res) {
 
 /** 2020.07.13 homework */
 app.post("/list", function (req, res) {
-  //request 계좌 목록 조회 요청 만들기 request 모듈 활용
-  //res.json(res.body);
   var option = {
     method: "GET",
     url: "https://testapi.openbanking.or.kr/v2.0/user/me",
@@ -166,7 +164,6 @@ app.post("/list", function (req, res) {
       "Content-Type": "application/x-www-form-urlencoded",
       "Authorization": "Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJhdWQiOiIxMTAwNzYwNTIzIiwic2NvcGUiOlsiaW5xdWlyeSIsImxvZ2luIiwidHJhbnNmZXIiXSwiaXNzIjoiaHR0cHM6Ly93d3cub3BlbmJhbmtpbmcub3Iua3IiLCJleHAiOjE2MDIzOTQyNzAsImp0aSI6ImM4MDlkZjE0LWYwMmEtNDMwMC1iNzE4LTE1NGY0NGQ3MWI1NiJ9.0I7s3VnkuW3GsrDN0nFdMrpjHkJcyiomvBRqSW9x2Js",
     },
-    //form 형태는 form / 쿼리스트링 형태는 qs / json 형태는 json ***
     qs: {
       "user_seq_no" : "1100760523",
     },
