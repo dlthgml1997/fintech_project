@@ -39,37 +39,6 @@ app.get("/signup", function (req, res) {
   res.render("signup");
 });
 
-app.get("/authResult", function (req, res) {
-  var authCode = req.query.code;
-  console.log("사용자 인증코드 : ", authCode);
-  var option = {
-    method: "POST",
-    url: "https://testapi.openbanking.or.kr/oauth/2.0/token",
-    headers: {
-      "Content-Type": "application/x-www-form-urlencoded",
-    },
-    //form 형태는 form / 쿼리스트링 형태는 qs / json 형태는 json ***
-    form: {
-      code: authCode,
-      //#자기 키로 시크릿 변경
-      client_id: "SM2eOU4s0ouUvvcvkIA5pBgfOVcF7VCzSs7qWKo7",
-      client_secret: "8rKpNTyQCJGeLNlGPULF2e0IAgU7Pem5wBfpeh0A",
-      redirect_uri: "http://localhost:3000/authResult",
-      grant_type: "authorization_code",
-    },
-  };
-  request(option, function (error, response, body) {
-    if (error) {
-      console.error(error);
-      throw error;
-    } else {
-      var accessRequestResult = JSON.parse(body);
-      console.log(accessRequestResult);
-      res.render("resultChild", { data: accessRequestResult });
-    }
-  });
-});
-
 app.post("/signup", function (req, res) {
   console.log(req.body);
   var userName = req.body.userName;
@@ -148,6 +117,36 @@ app.get("/authTest", auth, function (req, res) {
   res.json("로그인이 완료된 사용자가 보는 화면");
 });
 
+app.get("/authResult", function (req, res) {
+  var authCode = req.query.code;
+  console.log("사용자 인증코드 : ", authCode);
+  var option = {
+    method: "POST",
+    url: "https://testapi.openbanking.or.kr/oauth/2.0/token",
+    headers: {
+      "Content-Type": "application/x-www-form-urlencoded",
+    },
+    //form 형태는 form / 쿼리스트링 형태는 qs / json 형태는 json ***
+    form: {
+      code: authCode,
+      //#자기 키로 시크릿 변경
+      client_id: "SM2eOU4s0ouUvvcvkIA5pBgfOVcF7VCzSs7qWKo7",
+      client_secret: "8rKpNTyQCJGeLNlGPULF2e0IAgU7Pem5wBfpeh0A",
+      redirect_uri: "http://localhost:3000/authResult",
+      grant_type: "authorization_code",
+    },
+  };
+  request(option, function (error, response, body) {
+    if (error) {
+      console.error(error);
+      throw error;
+    } else {
+      var accessRequestResult = JSON.parse(body);
+      console.log(accessRequestResult);
+      res.render("resultChild", { data: accessRequestResult });
+    }
+  });
+});
 
 app.get("/main", function (req, res) {
   res.render("main");
@@ -201,6 +200,52 @@ app.post("/ajaxTest", function (req, res) {
 app.get("/addRouter", function (req, res) {
   console.log("router working");
   res.send("<html><h1>안녕하세요 html 코드입니다. </h1></html>");
+});
+
+app.get("/balance", function (req, res) {
+  res.render("balance");
+});
+
+app.post("/balance", auth, function (req, res) {
+  var userId = req.decoded.userId; 
+  var fin_use_num = req.body.fin_use_num;
+  var countnum = Math.floor(Math.random() * 1000000000) + 1;
+  var transId = "T991641600U" + countnum; //이용기과번호 본인것 입력
+
+  console.log("받아온 데이터", userId, fin_use_num);
+
+  var sql = "SELECT * FROM user WHERE id = ?"; 
+  connection.query(sql, [userId], function(err, results){
+    if(err) {
+      console.log(err);
+      throw err;
+    } else {
+      console.log("밸런스 받아온 데이터 베이스 값 : ", results);
+      var option = {
+        method: "GET",
+        url: "https://testapi.openbanking.or.kr/v2.0/account/balance/fin_num",
+        headers: {
+          "Content-Type": "application/x-www-form-urlencoded",
+          Authorization: "Bearer "+ results[0].accesstoken,
+        },
+        qs: {
+          bank_tran_id: transId,
+          fintech_use_num: fin_use_num,
+          tran_dtime: "20190910101921",
+        },
+      };
+      request(option, function (error, response, body) {
+        if (error) {
+          console.error(error);
+          throw error;
+        } else {
+          var balanceResult = JSON.parse(body);
+          console.log(balanceResult);
+          res.json(balanceResult);
+        }
+      });
+    }
+  });
 });
 
 app.listen(3000);
