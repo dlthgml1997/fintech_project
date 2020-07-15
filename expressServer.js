@@ -35,7 +35,6 @@ app.get("/designTest", function (req, res) {
   res.render("design");
 });
 
-/** 2020.07.13 start */
 app.get("/signup", function (req, res) {
   res.render("signup");
 });
@@ -153,33 +152,41 @@ app.get("/authTest", auth, function (req, res) {
 app.get("/main", function (req, res) {
   res.render("main");
 });
-/** 2020.07.13 end */
 
-/** 2020.07.13 homework */
-app.post("/list", function (req, res) {
-  var option = {
-    method: "GET",
-    url: "https://testapi.openbanking.or.kr/v2.0/user/me",
-    headers: {
-      "Content-Type": "application/x-www-form-urlencoded",
-      "Authorization": "Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJhdWQiOiIxMTAwNzYwNTIzIiwic2NvcGUiOlsiaW5xdWlyeSIsImxvZ2luIiwidHJhbnNmZXIiXSwiaXNzIjoiaHR0cHM6Ly93d3cub3BlbmJhbmtpbmcub3Iua3IiLCJleHAiOjE2MDIzOTQyNzAsImp0aSI6ImM4MDlkZjE0LWYwMmEtNDMwMC1iNzE4LTE1NGY0NGQ3MWI1NiJ9.0I7s3VnkuW3GsrDN0nFdMrpjHkJcyiomvBRqSW9x2Js",
-    },
-    qs: {
-      "user_seq_no" : "1100760523",
-    },
-  };
-  request(option, function (error, response, body) {
+app.post("/list", auth, function (req, res) {
+  var userId = req.decoded.userId;
+
+  var sql = "SELECT * FROM user WHERE id = ?";
+  connection.query(sql, [userId], function (error, results) {
     if (error) {
       console.error(error);
       throw error;
     } else {
-      var resultJson = JSON.parse(body);
-      console.log(resultJson);
-      res.json(resultJson);
+      console.log(results[0]);
+      var option = {
+        method: "GET",
+        url: "https://testapi.openbanking.or.kr/v2.0/user/me",
+        headers: {
+          "Content-Type": "application/x-www-form-urlencoded",
+          "Authorization": "Bearer " + results[0].accesstoken,
+        },
+        qs: {
+          user_seq_no: results[0].userseqno,
+        },
+      };
+      request(option, function (error, response, body) {
+        if (error) {
+          console.error(error);
+          throw error;
+        } else {
+          var resultJson = JSON.parse(body);
+          console.log(resultJson);
+          res.json(resultJson);
+        }
+      });
     }
   });
 });
-/** 2020.07.13 homework end */
 
 app.post("/ajaxTest", function (req, res) {
   var userId = req.body.sendUserId;
