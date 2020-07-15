@@ -282,6 +282,24 @@
           $("#balanceAmount").text(data.balance_amt);
         },
       });
+      $.ajax({
+        url: "http://localhost:3000/transactionList",
+        type: "POST",
+        headers: {
+          ourtoken: jwtToken,
+        },
+        data: {
+          fin_use_num: qs.fin_use_num,
+        },
+        success: function (data) {
+          console.log("해당 계좌의 거래 내역은 :", data);
+          var transactionList = data.res_list;
+          for(var i = 0; i < transactionList.length; i++) {
+            var transactionElement = data.res_list;      
+            $("#transactionTable").append();
+          }
+        },
+      });
     </script>
   </body>
 </html>
