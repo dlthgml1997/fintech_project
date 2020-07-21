@@ -212,32 +212,12 @@
         <main>
           <div class="container">
             <video id="preview"></video>
-            <!-- for large popup -->
-            <button
-              class="button circle darkblue block"
-              data-popup="largePopup">
-              Large Popup
-            </button>
           </div>
 
           <div class="form-divider"></div>
 
           <footer>
             <div class="container">
-              <ul>
-                <li>
-                  <a href="#"><i class="fa fa-facebook"></i></a>
-                </li>
-                <li>
-                  <a href="#"><i class="fa fa-twitter"></i></a>
-                </li>
-                <li>
-                  <a href="#"><i class="fa fa-google"></i></a>
-                </li>
-                <li>
-                  <a href="#"><i class="fa fa-instagram"></i></a>
-                </li>
-              </ul>
               <p>Copyright © All Right Reserved</p>
             </div>
           </footer>
@@ -257,6 +237,17 @@
             </span>
           </div>
           <div class="popup-content">
+              결제금액 : <input type="text" id="amount" /> 원
+              <table>
+                  <thead>
+                    <th>번호</th>
+                    <th>계좌별명</th>
+                    <th>결제 버튼</th>
+                  </thead>
+                  <tbody id="accountList">
+                      
+                  </tbody>
+              </table> 
           </div>
           <div class="popup-footer">
             <button class="button orange">Save</button>
@@ -300,20 +291,44 @@
         video: document.getElementById("preview"),
       });
       scanner.addListener("scan", function (content) {
-        $.ajax({
-            url: "http://localhost:3000/withdraw",
-            type: "POST",
-            headers: {
-            ourtoken: jwtToken,
-            },
-            data: {
-            fin_use_num: "199164160057885123711802",
-            },
-            success: function (data) {
-            console.log("출금 금액 :", data.tran_amt);
-            },
-        });
-        alert("content: "+content);
+          console.log(content);
+          $("#largePopup").show();
+          $.ajax({
+                url:'/list',
+                type : 'POST',
+                headers : {
+                    'ourtoken' : jwtToken,
+                },
+                success: function (data){
+                    console.log(data.res_list);
+                    for(var i=0; i < data.res_list.length; i++){
+                        var element = data.res_list[i];
+                        console.log(element);
+                        $("#accountList").append(
+                            "<tr><td>" +
+                            (i + 1) +
+                            "</td><td>" +
+                            element.account_alias +
+                            "</td><td>" +
+                            "<button>결제하기</button>" +
+                            "</td></tr>"
+                        )
+                    }    
+                }
+            })
+        // $.ajax({
+        //     url: "http://localhost:3000/withdraw",
+        //     type: "POST",
+        //     headers: {
+        //     ourtoken: jwtToken,
+        //     },
+        //     data: {
+        //     fin_use_num: "199164160057885123711802",
+        //     },
+        //     success: function (data) {
+        //     console.log("출금 금액 :", data.tran_amt);
+        //     },
+        // });
       });
       Instascan.Camera.getCameras()
         .then(function (cameras) {
