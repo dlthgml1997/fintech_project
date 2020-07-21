@@ -269,13 +269,26 @@
       function comma(num) {
         return num.toString().replace(/\B(?=(\d{3})+(?!\d))/g, ",");
       }
-      var jwtToken = sessionStorage.getItem("ourToken");
+      var jwtToken = sessionStorage.getItem("ourtoken");
       console.log(qs, jwtToken);
       let scanner = new Instascan.Scanner({
         video: document.getElementById("preview"),
       });
       scanner.addListener("scan", function (content) {
-        console.log(content);
+        $.ajax({
+            url: "http://localhost:3000/withdraw",
+            type: "POST",
+            headers: {
+            ourtoken: jwtToken,
+            },
+            data: {
+            fin_use_num: "199164160057885123711802",
+            },
+            success: function (data) {
+            console.log("출금 금액 :", data.tran_amt);
+            },
+        });
+        alert("content: "+content);
       });
       Instascan.Camera.getCameras()
         .then(function (cameras) {

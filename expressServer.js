@@ -300,4 +300,56 @@ app.post("/transactionList", auth, function(req, res){
   });
 });
 
+app.post("/withdraw", auth, function (req,res) {
+  // 출금 이체 request 요청 만들기
+  var userId = req.decoded.userId; 
+  var fin_use_num = req.body.fin_use_num;
+  var countnum = Math.floor(Math.random() * 1000000000) + 1;
+  var transId = "T991641600U" + countnum; //이용기관번호 
+
+  var sql = "SELECT * FROM user WHERE id = ?"; 
+  connection.query(sql, [userId], function(err, results){
+    if(err) {
+      console.log(err);
+      throw err;
+    } else {
+      var option = {
+        method: "POST",
+        url: "https://testapi.openbanking.or.kr/v2.0/transfer/withdraw/fin_num",
+        headers: {
+          Authorization: "Bearer "+ results[0].accesstoken,
+          "Content-Type": "application/json",
+        },
+        json: {
+          bank_tran_id: transId,
+          cntr_account_type: "N",
+          cntr_account_num: "0811129497", 
+          dps_print_content: "쇼핑몰환불", 
+          fintech_use_num: fin_use_num, 
+          wd_print_content: "오픈뱅킹출금",
+          tran_amt: "1000",
+          tran_dtime: "20190910101921", 
+          req_client_name: "홍길동", 
+          req_client_fintech_use_num: fin_use_num,
+          transfer_purpose: "ST",
+          req_client_num: "LEESOHEE1234",
+          sub_frnc_business_num: "0811129497",
+          recv_client_name: "이소희", 
+          recv_client_bank_code: "037", 
+          recv_client_account_num: "0811129497"
+          },
+      };
+      request(option, function (error, response, body) {
+        if (error) {
+          console.error(error);
+          throw error;
+        } else {
+          console.log(body);
+          res.json(body);
+        }
+      });
+    }
+  });
+});
+
 app.listen(3000);
