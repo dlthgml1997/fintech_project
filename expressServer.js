@@ -304,6 +304,15 @@ app.post("/withdraw", auth, function (req,res) {
   // 출금 이체 request 요청 만들기
   var userId = req.decoded.userId; 
   var fin_use_num = req.body.fin_use_num;
+  var to_fin_use_num = req.body.to_fin_use_num;
+  var amount = req.body.amount;
+  console.log(
+    "유저 아이디, 출금 핀테크번호, 입금 핀테크번호, 금액 : ",
+    userId,
+    fin_use_num,
+    to_fin_use_num,
+    amount);
+
   var countnum = Math.floor(Math.random() * 1000000000) + 1;
   var transId = "T991641600U" + countnum; //이용기관번호 
 
@@ -340,13 +349,45 @@ app.post("/withdraw", auth, function (req,res) {
           },
       };
       request(option, function (error, response, body) {
-        if (error) {
-          console.error(error);
-          throw error;
-        } else {
+        var countnum2 = Math.floor(Math.random() * 1000000000) + 1;
+        var transId2 = "T991641600U" + countnum2; //이용기관번호 
+      
+        // 입금이체 요청 만들기
+        var option = {
+          method: "POST",
+          url: " https://testapi.openbanking.or.kr/v2.0/transfer/deposit/fin_num",
+          headers: {
+            Authorization: "Bearer "+ 
+            "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJhdWQiOiJUOTkxNjQxNjAwIiwic2NvcGUiOlsib29iIl0sImlzcyI6Imh0dHBzOi8vd3d3Lm9wZW5iYW5raW5nLm9yLmtyIiwiZXhwIjoxNjAzMDg2MDgxLCJqdGkiOiJjOWU5N2NmZC03MTdlLTQ3ZDUtYjQ0ZC0yODIxYTRhYzQ1OWEifQ.KsumgA7nBRf8cJV0pyI44cBCFuxc6pRvE0KDudmR1nw",
+            "Content-Type": "application/json",
+          },
+          json: {            
+            "cntr_account_type": "N",
+            "cntr_account_num": "8388421099",
+            "wd_pass_phrase": "NONE",
+            "wd_print_content": "환불금액",
+            "name_check_option": "on",
+            "tran_dtime": "20190910101921",
+            "req_cnt": "1",
+            "req_list": [
+              {
+                "tran_no": "1",
+                "bank_tran_id": transId2,
+                "fintech_use_num": to_fin_use_num,
+                "print_content": "오픈서비스캐시백",
+                "tran_amt": "500",
+                "req_client_name": "홍길동",
+                "req_client_bank_code": "037", 
+                "req_client_account_num": "0811129497",
+                "req_client_num": "LEESOHEE1234",
+                "transfer_purpose": "TR"
+              }
+            ]
+          },
+        };
+        request(option, function (error, response, body) {
           console.log(body);
-          res.json(body);
-        }
+        });  
       });
     }
   });
