@@ -351,8 +351,7 @@ app.post("/withdraw", auth, function (req,res) {
       request(option, function (error, response, body) {
         var countnum2 = Math.floor(Math.random() * 1000000000) + 1;
         var transId2 = "T991641600U" + countnum2; //이용기관번호 
-      
-        // 입금이체 요청 만들기
+        
         var option = {
           method: "POST",
           url: " https://testapi.openbanking.or.kr/v2.0/transfer/deposit/fin_num",
